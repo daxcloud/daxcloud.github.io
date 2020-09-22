@@ -1,0 +1,109 @@
+// roll animation
+#text-animation-wrapper.roll-animation {
+    & > .each-txt-anm-elm {
+        font-size: 0;
+        opacity: 0;
+        margin-left: -30px;
+        position: absolute;
+        font-weight: 300;
+        box-shadow: 0 60px 25px -20px rgba(0, 0, 0, 0.5);
+    }
+    @for $i from 1 through 4 {
+        & > .each-txt-anm-elm:nth-child(#{$i}) {
+            animation: roll 5s linear infinite #{$i - 1}s;
+        }
+    }
+}
+
+@keyframes roll {
+    0% {
+        font-size: 0;
+        opacity: 0;
+        margin-left: -30px;
+        margin-top: 0;
+        transform: rotate(-25deg);
+    }
+    3% {
+        opacity: 1;
+        transform: rotate(0deg);
+    }
+    5% {
+        font-size: inherit;
+        opacity: 1;
+        margin-left: 0;
+        margin-top: 0;
+    }
+    20% {
+        font-size: inherit;
+        opacity: 1;
+        margin-left: 0;
+        margin-top: 0;
+        transform: rotate(0deg);
+    }
+    27% {
+        font-size: 0;
+        opacity: 0.5;
+        margin-left: 20px;
+        margin-top: 100px;
+    }
+    100% {
+        font-size: 0;
+        opacity: 0;
+        margin-left: -30px;
+        margin-top: 0;
+        transform: rotate(15deg);
+    }
+}
+
+
+
+// typing animation
+$w-typing-slides: 3;
+$w-letters-char: 9 10 14; //number of characters in each paragraph
+$w-typing-duration: 3s;
+$w-typing-font-size: 50px;
+
+// typing animation
+#text-animation-wrapper.typing-animation {
+    font-family: Consolas, monospace;
+    white-space: nowrap;    //prevent line break
+    .each-txt-anm-elm {
+        //display: inline-flex;
+        font-size: 0;
+        letter-spacing: 0;
+        position: relative;
+        animation: slide $w-typing-duration * $w-typing-slides step-start infinite;
+        &:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            border-left: 3px solid #fff;
+            background-color: $dark-theme-color;
+            animation: typing $w-typing-duration/2 linear infinite alternate;
+        }
+    }
+}
+
+@each $letters in $w-letters-char {
+    $i: index($w-letters-char, $letters);
+    #text-animation-wrapper.typing-animation .each-txt-anm-elm:nth-child(#{$i}) {
+        animation-delay:  $w-typing-duration * ($i - 1);
+        &:after {
+            animation-delay: $w-typing-duration * ($i - 1);
+            //animation-timing-function: steps(#{$letters}), step-end;
+        }
+    }
+}
+
+
+@keyframes typing {
+    from { width: 100%; }
+    90%, to { width: 0; }
+}
+
+@keyframes slide {
+    #{100% / $w-typing-slides} { font-size: $w-typing-font-size; letter-spacing: 3px; }
+    to { font-size: 0; letter-spacing: 0; }
+}

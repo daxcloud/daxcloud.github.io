@@ -1,0 +1,15 @@
+@mixin transition($second) {
+  -webkit-transition: all $second ease-in-out;
+     -moz-transition: all $second ease-in-out;
+      -ms-transition: all $second ease-in-out;
+       -o-transition: all $second ease-in-out;
+          transition: all $second ease-in-out;
+}
+
+@mixin translate($val) {
+  -webkit-translate: $val;
+     -moz-translate: $val;
+      -ms-translate: $val;
+       -o-translate: $val;
+          translate: $val;
+}
