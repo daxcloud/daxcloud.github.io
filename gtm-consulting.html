@@ -110,6 +110,34 @@
   }
   .btn-print:hover{ background:var(--accent-bright); border-color:var(--accent-bright) }
   .btn-print:active{ transform:translateY(1px) }
+  .btn-ghost{
+    font-family:"IBM Plex Mono", monospace; font-size:11px; letter-spacing:.11em; text-transform:uppercase; font-weight:500;
+    color:var(--ink-soft); background:transparent; border:1px solid var(--line-strong);
+    padding:8px 13px; border-radius:2px; cursor:pointer; white-space:nowrap; text-decoration:none;
+    display:inline-flex; align-items:center; gap:7px; transition:border-color .18s, color .18s;
+  }
+  .btn-ghost:hover{ color:var(--accent); border-color:var(--accent) }
+  .btn-ghost .ar{ font-size:13px; line-height:1 }
+
+  /* one-pager download card (cover) */
+  .onepager-card{
+    display:flex; align-items:center; gap:16px; text-decoration:none;
+    margin:34px 0 2px; padding:16px 18px;
+    border:1px solid var(--line-strong); border-radius:3px; background:var(--surface);
+    box-shadow:var(--shadow); transition:border-color .18s, transform .12s;
+  }
+  .onepager-card:hover{ border-color:var(--accent); transform:translateY(-1px) }
+  .opc-icon{ flex:none; width:36px; height:36px; display:grid; place-items:center; color:var(--accent); border:1px solid var(--line-strong); border-radius:3px; background:var(--field) }
+  .opc-icon svg{ width:18px; height:18px }
+  .opc-text{ flex:1; min-width:0 }
+  .opc-h{ display:block; font-family:"IBM Plex Sans",sans-serif; font-weight:600; font-size:1rem; color:var(--ink); line-height:1.2 }
+  .opc-sub{ display:block; font-size:.9rem; color:var(--ink-soft); margin-top:3px; line-height:1.4 }
+  .opc-cta{ flex:none; font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); font-weight:600; display:inline-flex; align-items:center; gap:7px; white-space:nowrap }
+  .opc-cta .ar{ font-size:14px; line-height:1 }
+  @media (max-width:560px){
+    .opc-sub{ display:none }
+    .onepager-card{ gap:13px; padding:14px 15px }
+  }
 
   /* ============ COVER ============ */
   .cover{ padding:74px 0 60px; position:relative; z-index:1 }
@@ -281,6 +309,7 @@
     <span class="progress-label" id="pct">0% complete</span>
     <span class="progress-track"><span class="progress-bar" id="bar"></span></span>
   </span>
+  <a class="btn-ghost" href="/outbound-one-pager.pdf" target="_blank" rel="noopener" download>One-pager <span class="ar">&darr;</span></a>
   <button class="btn-print" id="printBtn" type="button">Print / Save PDF</button>
 </div>
 
@@ -295,6 +324,15 @@
       <h1>Client Intake</h1>
       <p class="thesis">I build your outbound engine, and stay only as long as you want me to.</p>
       <p class="lede">This is where your engine gets its intelligence. <b>The better I understand how you actually win, the faster it sounds like you and not like software.</b> Most of this you can answer from memory. The gaps are fine, and finding them is part of week one.</p>
+
+      <a class="onepager-card" href="/outbound-one-pager.pdf" target="_blank" rel="noopener" download>
+        <span class="opc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M5 20h14"/></svg></span>
+        <span class="opc-text">
+          <span class="opc-h">New here? Start with the one-pager.</span>
+          <span class="opc-sub">A single page on how the engagement works, from install to handoff.</span>
+        </span>
+        <span class="opc-cta">Download <span class="ar">&darr;</span></span>
+      </a>
 
       <div class="assurances" aria-label="How the engine is run">
         <div class="assurance"><span class="tick">01</span><p>Your CRM stays the source of truth. Every send, reply, and outcome is written back.</p></div>
