@@ -125,9 +125,9 @@
   }
   .cover h1 .thin{ color:var(--ink-soft) }
   .thesis{
-    font-family:"Instrument Serif", Georgia, serif; font-style:italic;
-    font-size:clamp(1.5rem,3.4vw,2.05rem); line-height:1.28; color:var(--accent);
-    margin:8px 0 26px; text-wrap:balance;
+    font-family:"IBM Plex Sans", system-ui, sans-serif; font-style:normal; font-weight:400;
+    font-size:clamp(1.12rem,2.2vw,1.4rem); line-height:1.45; color:var(--ink-soft);
+    margin:14px 0 30px; max-width:44ch; text-wrap:balance;
   }
   .lede{ font-size:1.18rem; line-height:1.62; color:var(--ink-soft); max-width:60ch }
   .lede b{ color:var(--ink); font-weight:600 }
@@ -264,11 +264,8 @@
   .submit-success{ border-top:2px solid var(--accent) }
   .submit-panel h3, .submit-success h3{ font-family:"Instrument Serif",Georgia,serif; font-weight:400; font-size:2.1rem; margin:6px 0 10px }
   .submit-panel > p, .submit-success > p{ color:var(--ink-soft); max-width:54ch; margin:0 auto 22px; font-size:1.02rem; line-height:1.55 }
-  .btn-submit{
-    font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.12em; text-transform:uppercase; font-weight:600;
-    color:var(--bg); background:var(--accent); border:1px solid var(--accent);
-    padding:15px 36px; border-radius:2px; cursor:pointer; transition:background .18s, transform .08s;
-  }
+  .btn-submit{ font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.12em; text-transform:uppercase; font-weight:600;
+    color:var(--bg); background:var(--accent); border:1px solid var(--accent); padding:15px 36px; border-radius:2px; cursor:pointer; transition:background .18s, transform .08s; }
   .btn-submit:hover{ background:var(--accent-bright); border-color:var(--accent-bright) }
   .btn-submit:active{ transform:translateY(1px) }
   .btn-submit:disabled{ opacity:.55; cursor:default }
@@ -295,9 +292,8 @@
   <div class="grid-field">
   <div class="wrap">
     <header class="cover">
-      <div class="eyebrow">Private Briefing &nbsp;·&nbsp; Prepared for you</div>
-      <h1>Client Intake<span class="thin">.</span></h1>
-      <p class="thesis">I build outbound machines. Then I leave.</p>
+      <h1>Client Intake</h1>
+      <p class="thesis">I build your outbound machine, and stay only as long as you want me to.</p>
       <p class="lede">This is where your machine gets its intelligence. <b>The better I understand how you actually win, the faster it sounds like you and not like software.</b> Most of this you can answer from memory. The gaps are fine, and finding them is part of week one.</p>
 
       <div class="assurances" aria-label="How the machine is run">
@@ -312,7 +308,6 @@
           <div class="field"><label for="f_company">Company</label><input type="text" id="f_company" name="Company" placeholder="Company name"></div>
           <div class="field"><label for="f_who">Completed by</label><input type="text" id="f_who" name="Completed by" placeholder="Name and title"></div>
           <div class="field"><label for="f_email">Email</label><input type="text" id="f_email" name="email" placeholder="you@company.com"></div>
-          <div class="field"><label for="f_date">Date</label><input type="text" id="f_date" name="Date" placeholder="e.g. September 2026"></div>
           <div class="field"><label for="f_site">Website</label><input type="text" id="f_site" name="Website" placeholder="yourcompany.com"></div>
         </div>
       </div>
@@ -359,7 +354,7 @@
       <div class="sec-index">02</div>
       <div class="sec-titles"><p class="sec-kicker">The offer</p><h2>What you sell, and why people buy</h2></div>
     </div>
-    <p class="sec-note">In plain lines, the way you'd say it on a call. <em>If you can say it aloud, it can go in an email.</em> Marketing gloss gets stripped out; the concrete claim is what earns a reply.</p>
+    <p class="sec-note">In plain language, describe what it is that you sell, and why people choose to buy your product or service.</p>
 
     <div class="field">
       <label for="q_what"><span class="qnum">2.1</span>In one honest line, what do you sell?</label>
@@ -370,8 +365,8 @@
       <textarea id="q_doors" name="2.2 Problems it solves" placeholder="The machine opens more than one door per account. Each problem is an angle for a different seat."></textarea>
     </div>
     <div class="field">
-      <label for="q_beat"><span class="qnum">2.3</span>Are you creating a category or taking share from an incumbent? Who do you have to beat, and what's the honest difference?</label>
-      <textarea id="q_beat" name="2.3 Category / incumbent / who to beat" placeholder="Name the competitor and the real reason you win against them. Honest beats flattering."></textarea>
+      <label for="q_beat"><span class="qnum">2.3</span>Are you a category creator? Are you disrupting an incumbent market? Are you selling a better mousetrap? Who do you compete against, and why is your product or service differentiated?</label>
+      <textarea id="q_beat" name="2.3 Category creator / disruptor / differentiation" placeholder="Name the competitor and the real reason you win against them. Honest beats flattering."></textarea>
     </div>
     <div class="field">
       <label for="q_deal"><span class="qnum">2.4</span>What does a first deal look like: the initial outcome, the timeline, the rough economics?</label>
@@ -384,19 +379,19 @@
       <div class="sec-index">03</div>
       <div class="sec-titles"><p class="sec-kicker">The target</p><h2>Who it's for</h2></div>
     </div>
-    <p class="sec-note">The fastest way to waste a warm domain is to point it at the wrong companies. <em>We set the floor before a single note goes out.</em></p>
+    <p class="sec-note">The fastest way to waste a warm domain is to point it at the wrong companies.</p>
 
     <div class="field">
-      <label for="q_icp"><span class="qnum">3.1</span>Describe your ideal customer, or just the customers you wish you had more of.</label>
+      <label for="q_icp"><span class="qnum">3.1</span>Describe your ideal customer, or the customers you wish you had more of.</label>
       <textarea id="q_icp" name="3.1 Ideal customer" placeholder="Size, shape, industry, the situation that makes them a fit. Real examples welcome."></textarea>
     </div>
     <div class="field">
-      <label for="q_floor"><span class="qnum">3.2</span>What's the floor? Below what size or revenue is a company simply not worth a touch?</label>
-      <input type="text" id="q_floor" name="3.2 The floor" placeholder="e.g. 1,000+ employees and/or $500M+ revenue. Below the floor is a pass, however eager.">
+      <label for="q_floor"><span class="qnum">3.2</span>What are the lower and upper bounds for your target ICP? Revenue floor? Revenue ceiling?</label>
+      <input type="text" id="q_floor" name="3.2 ICP bounds (revenue floor and ceiling)" placeholder="e.g. a $50M revenue floor and a $2B ceiling. Employee-count bounds are welcome too.">
     </div>
     <div class="field">
-      <label for="q_seats"><span class="qnum">3.3</span>Which seats actually buy: the titles that own the problem and hold the budget? And who's a dead end?</label>
-      <textarea id="q_seats" name="3.3 Buying seats and dead ends" placeholder="The economic buyer, and the operator who lives with the problem. And the titles that never move a deal."></textarea>
+      <label for="q_seats"><span class="qnum">3.3</span>Who are the titles that own the problem you solve? Who holds the budget, and who is a dead end?</label>
+      <textarea id="q_seats" name="3.3 Titles that own the problem, budget, dead ends" placeholder="The economic buyer, and the operator who lives with the problem. And the titles that never move a deal."></textarea>
     </div>
     <div class="field">
       <label for="q_verticals"><span class="qnum">3.4</span>Which industries or verticals should the machine work first?</label>
@@ -615,32 +610,16 @@
 </script>
 
 <script>
-(function(){
-  "use strict";
-  var form = document.getElementById("intakeForm");
-  if(!form) return;
-  var btn = document.getElementById("submitBtn"),
-      status = document.getElementById("submitStatus"),
-      panel = document.getElementById("submitPanel"),
-      success = document.getElementById("submitSuccess"),
-      KEY = "om_intake_v1";
-  form.addEventListener("submit", function(e){
-    e.preventDefault();
-    if(btn.disabled) return;
-    btn.disabled = true;
-    status.textContent = "Sending\u2026";
-    fetch("https://api.web3forms.com/submit", {
-      method:"POST", headers:{ "Accept":"application/json" }, body:new FormData(form)
-    }).then(function(r){ return r.json(); }).then(function(j){
-      if(j && j.success){
-        try{ localStorage.removeItem(KEY); }catch(err){}
-        if(panel) panel.hidden = true;
-        if(success){ success.hidden = false; success.scrollIntoView({behavior:"smooth", block:"center"}); }
-      } else { throw new Error((j && j.message) || "fail"); }
-    }).catch(function(){
-      status.textContent = "That didn't go through. Check your connection and try again, or use Print / Save PDF up top to send it manually.";
-      btn.disabled = false;
-    });
+(function(){ "use strict";
+  var form=document.getElementById("intakeForm"); if(!form) return;
+  var btn=document.getElementById("submitBtn"),status=document.getElementById("submitStatus"),
+      panel=document.getElementById("submitPanel"),success=document.getElementById("submitSuccess"),KEY="om_intake_v1";
+  form.addEventListener("submit",function(e){ e.preventDefault(); if(btn.disabled) return; btn.disabled=true; status.textContent="Sending\u2026";
+    fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Accept":"application/json"},body:new FormData(form)})
+    .then(function(r){return r.json();}).then(function(j){
+      if(j&&j.success){ try{localStorage.removeItem(KEY);}catch(err){} if(panel)panel.hidden=true; if(success){success.hidden=false;success.scrollIntoView({behavior:"smooth",block:"center"});} }
+      else { throw new Error((j&&j.message)||"fail"); }
+    }).catch(function(){ status.textContent="That didn't go through. Check your connection and try again, or use Print / Save PDF up top to send it manually."; btn.disabled=false; });
   });
 })();
 </script>
