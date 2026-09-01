@@ -36,6 +36,17 @@
     reveals.forEach(function (el) { el.classList.add('in'); });
   }
 
+  /* First-paint safety: reveal anything already in view, now, on load, and shortly after. */
+  function revealInView() {
+    reveals.forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight && r.bottom > 0) el.classList.add('in');
+    });
+  }
+  requestAnimationFrame(revealInView);
+  window.addEventListener('load', revealInView);
+  setTimeout(revealInView, 900);
+
   /* --- Animated stat counters --- */
   function animateCount(el) {
     var target = parseFloat(el.getAttribute('data-count'));
