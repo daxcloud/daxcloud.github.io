@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600;700&family=Instrument+Serif:ital@0;1&display=swap">
+<title>Dax.io Client Intake</title>
+<style>
+  /* ============ TOKENS ============ */
+  :root{
+    /* light = warm bone drafting paper, petrol ink, brass signal */
+    --bg:#EDE9DF;
+    --bg-2:#E6E1D4;
+    --surface:#F6F3EB;
+    --ink:#172326;
+    --ink-soft:#4C5A5C;
+    --ink-faint:#7C8788;
+    --line:#D6CFBF;
+    --line-strong:#C4BBA6;
+    --accent:#8A5E23;        /* brass, deepened for contrast on paper */
+    --accent-bright:#A9772E;
+    --petrol:#2E5D63;
+    --field:#FCFAF3;
+    --field-line:#CBC2AE;
+    --field-focus:#8A5E23;
+    --shadow:0 1px 0 rgba(23,35,38,.04), 0 18px 44px -32px rgba(23,35,38,.5);
+    --good:#3d6b4a;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#101A1D;
+      --bg-2:#0C1416;
+      --surface:#17242A;
+      --ink:#ECE7DA;
+      --ink-soft:#A2AFB0;
+      --ink-faint:#71807F;
+      --line:#26363B;
+      --line-strong:#33474D;
+      --accent:#CB9B4E;
+      --accent-bright:#E0B368;
+      --petrol:#66A3AB;
+      --field:#132025;
+      --field-line:#33474D;
+      --field-focus:#CB9B4E;
+      --shadow:0 1px 0 rgba(0,0,0,.2), 0 24px 60px -36px rgba(0,0,0,.8);
+      --good:#7FB08C;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#101A1D; --bg-2:#0C1416; --surface:#17242A;
+    --ink:#ECE7DA; --ink-soft:#A2AFB0; --ink-faint:#71807F;
+    --line:#26363B; --line-strong:#33474D;
+    --accent:#CB9B4E; --accent-bright:#E0B368; --petrol:#66A3AB;
+    --field:#132025; --field-line:#33474D; --field-focus:#CB9B4E;
+    --shadow:0 1px 0 rgba(0,0,0,.2), 0 24px 60px -36px rgba(0,0,0,.8);
+    --good:#7FB08C; color-scheme:dark;
+  }
+
+  /* ============ BASE ============ */
+  *{box-sizing:border-box}
+  html{ -webkit-text-size-adjust:100%; scroll-behavior:smooth }
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} *{animation-duration:.001ms !important; transition-duration:.001ms !important} }
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    font-weight:450; font-size:17px; line-height:1.72;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  ::selection{ background:var(--accent); color:var(--bg) }
+
+  .wrap{ max-width:860px; margin:0 auto; padding:0 28px }
+  .measure{ max-width:64ch }
+
+  /* faint engineered grid on the very top, cover only */
+  .grid-field{ position:relative }
+  .grid-field::before{
+    content:""; position:absolute; inset:0 0 auto 0; height:520px; z-index:0; pointer-events:none;
+    background-image:linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:34px 34px; opacity:.30;
+    -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.55), transparent 78%);
+            mask-image:linear-gradient(180deg, rgba(0,0,0,.55), transparent 78%);
+  }
+
+  /* ============ TOP BAR ============ */
+  .topbar{
+    position:sticky; top:0; z-index:40;
+    display:flex; align-items:center; gap:18px;
+    padding:11px 22px;
+    background:color-mix(in srgb, var(--bg) 86%, transparent);
+    -webkit-backdrop-filter:saturate(1.1) blur(9px); backdrop-filter:saturate(1.1) blur(9px);
+    border-bottom:1px solid var(--line);
+  }
+  .brandmark{ font-family:"IBM Plex Mono", monospace; font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink); font-weight:500; white-space:nowrap }
+  .brandmark b{ color:var(--accent); font-weight:600 }
+  .brandmark .sep{ color:var(--ink-faint); margin:0 .55em }
+  .topbar .spacer{ flex:1 }
+  .progress-wrap{ display:flex; align-items:center; gap:9px; min-width:0 }
+  .progress-label{ font-family:"IBM Plex Mono", monospace; font-size:10.5px; letter-spacing:.1em; color:var(--ink-faint); white-space:nowrap; font-variant-numeric:tabular-nums }
+  .progress-track{ width:120px; height:4px; border-radius:2px; background:var(--line-strong); overflow:hidden }
+  .progress-bar{ height:100%; width:0%; background:linear-gradient(90deg, var(--petrol), var(--accent)); transition:width .5s cubic-bezier(.4,0,.2,1) }
+  .btn-print{
+    font-family:"IBM Plex Mono", monospace; font-size:11px; letter-spacing:.11em; text-transform:uppercase; font-weight:500;
+    color:var(--bg); background:var(--accent); border:1px solid var(--accent);
+    padding:8px 14px; border-radius:2px; cursor:pointer; white-space:nowrap;
+    transition:background .18s, transform .1s;
+  }
+  .btn-print:hover{ background:var(--accent-bright); border-color:var(--accent-bright) }
+  .btn-print:active{ transform:translateY(1px) }
+  .btn-ghost{
+    font-family:"IBM Plex Mono", monospace; font-size:11px; letter-spacing:.11em; text-transform:uppercase; font-weight:500;
+    color:var(--ink-soft); background:transparent; border:1px solid var(--line-strong);
+    padding:8px 13px; border-radius:2px; cursor:pointer; white-space:nowrap; text-decoration:none;
+    display:inline-flex; align-items:center; gap:7px; transition:border-color .18s, color .18s;
+  }
+  .btn-ghost:hover{ color:var(--accent); border-color:var(--accent) }
+  .btn-ghost .ar{ font-size:13px; line-height:1 }
+
+  /* one-pager download card (cover) */
+  .onepager-card{
+    display:flex; align-items:center; gap:16px; text-decoration:none;
+    margin:34px 0 2px; padding:16px 18px;
+    border:1px solid var(--line-strong); border-radius:3px; background:var(--surface);
+    box-shadow:var(--shadow); transition:border-color .18s, transform .12s;
+  }
+  .onepager-card:hover{ border-color:var(--accent); transform:translateY(-1px) }
+  .opc-icon{ flex:none; width:36px; height:36px; display:grid; place-items:center; color:var(--accent); border:1px solid var(--line-strong); border-radius:3px; background:var(--field) }
+  .opc-icon svg{ width:18px; height:18px }
+  .opc-text{ flex:1; min-width:0 }
+  .opc-h{ display:block; font-family:"IBM Plex Sans",sans-serif; font-weight:600; font-size:1rem; color:var(--ink); line-height:1.2 }
+  .opc-sub{ display:block; font-size:.9rem; color:var(--ink-soft); margin-top:3px; line-height:1.4 }
+  .opc-cta{ flex:none; font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); font-weight:600; display:inline-flex; align-items:center; gap:7px; white-space:nowrap }
+  .opc-cta .ar{ font-size:14px; line-height:1 }
+  @media (max-width:560px){
+    .opc-sub{ display:none }
+    .onepager-card{ gap:13px; padding:14px 15px }
+  }
+
+  /* ============ COVER ============ */
+  .cover{ padding:74px 0 60px; position:relative; z-index:1 }
+  .eyebrow{
+    font-family:"IBM Plex Mono", monospace; font-size:12px; letter-spacing:.26em; text-transform:uppercase;
+    color:var(--accent); font-weight:500; display:flex; align-items:center; gap:12px;
+  }
+  .eyebrow::after{ content:""; height:1px; flex:1; max-width:180px; background:linear-gradient(90deg, var(--line-strong), transparent) }
+  .cover h1{
+    font-family:"Instrument Serif", Georgia, serif; font-weight:400;
+    font-size:clamp(3.1rem, 8.5vw, 5.6rem); line-height:.98; letter-spacing:-.01em;
+    margin:22px 0 4px; text-wrap:balance;
+  }
+  .cover h1 .thin{ color:var(--ink-soft) }
+  .thesis{
+    font-family:"IBM Plex Sans", system-ui, sans-serif; font-style:normal; font-weight:400;
+    font-size:clamp(1.12rem,2.2vw,1.4rem); line-height:1.45; color:var(--ink-soft);
+    margin:14px 0 30px; max-width:44ch; text-wrap:balance;
+  }
+  .lede{ font-size:1.18rem; line-height:1.62; color:var(--ink-soft); max-width:60ch }
+  .lede b{ color:var(--ink); font-weight:600 }
+
+  .assurances{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:0;
+    margin:38px 0 8px; border:1px solid var(--line); border-radius:3px; overflow:hidden; background:var(--surface);
+  }
+  .assurance{ padding:16px 18px; border-right:1px solid var(--line) }
+  .assurance:last-child{ border-right:0 }
+  .assurance .tick{ font-family:"IBM Plex Mono",monospace; color:var(--accent); font-size:13px; font-weight:600 }
+  .assurance p{ margin:6px 0 0; font-size:.92rem; line-height:1.4; color:var(--ink) }
+
+  /* identity card */
+  .idcard{ margin-top:30px; padding:22px 22px 8px; border:1px solid var(--line-strong); border-radius:3px; background:var(--surface); box-shadow:var(--shadow) }
+  .idcard .idcard-h{ font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:14px }
+  .idrow{ display:grid; grid-template-columns:1fr 1fr; gap:14px 26px }
+
+  /* ============ SECTIONS ============ */
+  main{ position:relative; z-index:1 }
+  section.q{ padding:52px 0; border-top:1px solid var(--line) }
+  .sec-head{ display:flex; gap:20px; align-items:flex-start; margin-bottom:6px }
+  .sec-index{
+    font-family:"IBM Plex Mono", monospace; font-size:13px; font-weight:600; letter-spacing:.04em;
+    color:var(--accent); padding-top:.62em; font-variant-numeric:tabular-nums; white-space:nowrap;
+  }
+  .sec-titles h2{
+    font-family:"Instrument Serif", Georgia, serif; font-weight:400;
+    font-size:clamp(1.9rem,4.2vw,2.7rem); line-height:1.02; letter-spacing:-.01em; margin:0; text-wrap:balance;
+  }
+  .sec-kicker{ font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 6px }
+  .sec-note{ margin:16px 0 30px; padding-left:20px; border-left:2px solid var(--accent); color:var(--ink-soft); font-size:1.06rem; line-height:1.58; max-width:60ch }
+  .sec-note em{ color:var(--ink); font-style:normal; font-weight:600 }
+
+  /* ============ FIELDS ============ */
+  .field{ margin:0 0 26px }
+  .field:last-child{ margin-bottom:0 }
+  .field > label, .qlabel{
+    display:block; font-family:"IBM Plex Sans",sans-serif; font-weight:600; font-size:1.02rem; line-height:1.45;
+    color:var(--ink); margin-bottom:9px;
+  }
+  .field .hint{ display:block; font-weight:450; font-size:.9rem; color:var(--ink-faint); margin-top:3px }
+  .qnum{ font-family:"IBM Plex Mono",monospace; color:var(--accent); font-size:.82em; font-weight:600; margin-right:.5em }
+
+  input[type=text], textarea{
+    width:100%; font-family:inherit; font-size:1rem; line-height:1.6; color:var(--ink);
+    background:var(--field); border:1px solid var(--field-line); border-radius:3px;
+    padding:11px 13px; transition:border-color .16s, box-shadow .16s, background .16s; resize:none;
+  }
+  input[type=text]{ padding:10px 13px }
+  textarea{ min-height:52px; overflow:hidden }
+  input[type=text]::placeholder, textarea::placeholder{ color:var(--ink-faint); opacity:.72 }
+  input[type=text]:focus, textarea:focus{
+    outline:none; border-color:var(--field-focus);
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+    background:var(--surface);
+  }
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:14px 22px }
+
+  /* choice chips (radio) */
+  .choices{ display:flex; flex-wrap:wrap; gap:10px }
+  .choice{ position:relative }
+  .choice input{ position:absolute; opacity:0; inset:0; cursor:pointer }
+  .choice span{
+    display:block; font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.04em;
+    padding:9px 15px; border:1px solid var(--field-line); border-radius:2px; background:var(--field);
+    color:var(--ink-soft); cursor:pointer; transition:.15s;
+  }
+  .choice input:hover + span{ border-color:var(--accent) }
+  .choice input:focus-visible + span{ outline:2px solid var(--accent); outline-offset:2px }
+  .choice input:checked + span{ background:var(--accent); border-color:var(--accent); color:var(--bg); font-weight:500 }
+
+  /* ============ CLOSING ARC ============ */
+  .closing{ padding:56px 0 20px; border-top:2px solid var(--accent) }
+  .arc{ display:grid; grid-template-columns:repeat(3,1fr); gap:0; margin:26px 0 34px; border:1px solid var(--line); border-radius:3px; overflow:hidden }
+  .arc .phase{ padding:20px 20px 22px; border-right:1px solid var(--line); background:var(--surface) }
+  .arc .phase:last-child{ border-right:0 }
+  .arc .wk{ font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); font-weight:600 }
+  .arc .phase h4{ font-family:"Instrument Serif",Georgia,serif; font-weight:400; font-size:1.5rem; margin:8px 0 6px }
+  .arc .phase p{ margin:0; font-size:.9rem; line-height:1.45; color:var(--ink-soft) }
+  .donebar{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.05em; color:var(--ink);
+    padding:15px 18px; border:1px solid var(--line-strong); border-radius:3px; background:var(--bg-2); text-align:center;
+  }
+  .donebar b{ color:var(--accent); font-weight:600 }
+
+  .signoff{ display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-top:40px; padding-top:22px; border-top:1px solid var(--line) }
+  .sig-name{ font-family:"Instrument Serif",Georgia,serif; font-size:1.7rem }
+  .sig-role{ font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint) }
+  .savednote{ font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.08em; color:var(--good) }
+
+  footer{ padding:26px 0 60px; color:var(--ink-faint); font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; text-align:center }
+
+  a{ color:var(--accent); text-decoration:none; border-bottom:1px solid color-mix(in srgb,var(--accent) 40%, transparent) }
+  a:hover{ border-bottom-color:var(--accent) }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width:680px){
+    body{ font-size:16px }
+    .wrap{ padding:0 20px }
+    .assurances, .arc{ grid-template-columns:1fr }
+    .assurance, .arc .phase{ border-right:0; border-bottom:1px solid var(--line) }
+    .assurance:last-child, .arc .phase:last-child{ border-bottom:0 }
+    .idrow, .grid2{ grid-template-columns:1fr }
+    .sec-head{ gap:13px }
+    .topbar{ gap:12px; padding:10px 16px }
+    .brandmark .hide-sm{ display:none }
+    .progress-track{ width:74px }
+  }
+
+  /* ============ PRINT ============ */
+  @media print{
+    :root{
+      --bg:#fff; --bg-2:#fff; --surface:#fff; --ink:#111; --ink-soft:#333; --ink-faint:#666;
+      --line:#c9c9c9; --line-strong:#a9a9a9; --accent:#7A5220; --petrol:#2E5D63; --field:#fff; --field-line:#bdbdbd;
+      color-scheme:light;
+    }
+    .topbar{ display:none }
+    .grid-field::before{ display:none }
+    body{ font-size:11.4pt }
+    .cover{ padding:8pt 0 20pt }
+    section.q{ padding:20pt 0; break-inside:auto }
+    .field, .sec-head, .idcard, .assurances, .arc, .donebar{ break-inside:avoid }
+    input[type=text], textarea{ background:#fff; border:1px solid #bdbdbd }
+    a{ color:#111; border:0 }
+    .btn-print{ display:none }
+  }
+
+  /* ---- submit ---- */
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{ outline:2px solid var(--accent); outline-offset:2px }
+  .hp{ position:absolute !important; left:-9999px !important; width:1px; height:1px; overflow:hidden }
+  .submit-panel, .submit-success{ padding:36px 0 8px; border-top:1px solid var(--line); text-align:center }
+  .submit-success{ border-top:2px solid var(--accent) }
+  .submit-panel h3, .submit-success h3{ font-family:"Instrument Serif",Georgia,serif; font-weight:400; font-size:2.1rem; margin:6px 0 10px }
+  .submit-panel > p, .submit-success > p{ color:var(--ink-soft); max-width:54ch; margin:0 auto 22px; font-size:1.02rem; line-height:1.55 }
+  .btn-submit{ font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.12em; text-transform:uppercase; font-weight:600;
+    color:var(--bg); background:var(--accent); border:1px solid var(--accent); padding:15px 36px; border-radius:2px; cursor:pointer; transition:background .18s, transform .08s; }
+  .btn-submit:hover{ background:var(--accent-bright); border-color:var(--accent-bright) }
+  .btn-submit:active{ transform:translateY(1px) }
+  .btn-submit:disabled{ opacity:.55; cursor:default }
+  .submit-status{ margin:16px 0 0; font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.03em; color:var(--ink-soft); min-height:1em }
+  @media print{ .submit-panel, .submit-success{ display:none } }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="brandmark">The&nbsp;Outbound&nbsp;Machine <span class="sep">▸</span> <b>Client&nbsp;Intake</b></span>
+  <span class="spacer"></span>
+  <span class="progress-wrap">
+    <span class="progress-label" id="pct">0% complete</span>
+    <span class="progress-track"><span class="progress-bar" id="bar"></span></span>
+  </span>
+  <a class="btn-ghost" href="/outbound-one-pager.pdf" target="_blank" rel="noopener" download>One-pager <span class="ar">&darr;</span></a>
+  <button class="btn-print" id="printBtn" type="button">Print / Save PDF</button>
+</div>
+
+<form id="intakeForm" action="https://api.web3forms.com/submit" method="POST" novalidate>
+  <input type="hidden" name="access_key" value="88afd9bc-fcec-4dc2-8a1a-1dae1b4f327b">
+  <input type="hidden" name="subject" value="New GTM Consulting intake (dax.io)">
+  <input type="hidden" name="from_name" value="dax.io GTM intake">
+  <label class="hp" aria-hidden="true">Leave blank<input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off"></label>
+  <div class="grid-field">
+  <div class="wrap">
+    <header class="cover">
+      <h1>Client Intake</h1>
+      <p class="thesis">I build your outbound engine, and stay only as long as you want me to.</p>
+      <p class="lede">This is where your engine gets its intelligence. <b>The better I understand how you actually win, the faster it sounds like you and not like software.</b> Most of this you can answer from memory. The gaps are fine, and finding them is part of week one.</p>
+
+      <a class="onepager-card" href="/outbound-one-pager.pdf" target="_blank" rel="noopener" download>
+        <span class="opc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M5 20h14"/></svg></span>
+        <span class="opc-text">
+          <span class="opc-h">New here? Start with the one-pager.</span>
+          <span class="opc-sub">A single page on how the engagement works, from install to handoff.</span>
+        </span>
+        <span class="opc-cta">Download <span class="ar">&darr;</span></span>
+      </a>
+
+      <div class="assurances" aria-label="How the engine is run">
+        <div class="assurance"><span class="tick">01</span><p>Your CRM stays the source of truth. Every send, reply, and outcome is written back.</p></div>
+        <div class="assurance"><span class="tick">02</span><p>Every message is checked word for word in its final form. Failure lands on no send, never a bad one.</p></div>
+        <div class="assurance"><span class="tick">03</span><p>A reply freezes the account and routes to a human within minutes. No exceptions.</p></div>
+      </div>
+
+      <div class="idcard">
+        <div class="idcard-h">For the record</div>
+        <div class="idrow">
+          <div class="field"><label for="f_company">Company</label><input type="text" id="f_company" name="Company" placeholder="Company name"></div>
+          <div class="field"><label for="f_who">Completed by</label><input type="text" id="f_who" name="Completed by" placeholder="Name and title"></div>
+          <div class="field"><label for="f_email">Email</label><input type="text" id="f_email" name="email" placeholder="you@company.com"></div>
+          <div class="field"><label for="f_site">Website</label><input type="text" id="f_site" name="Website" placeholder="yourcompany.com"></div>
+        </div>
+      </div>
+    </header>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <section class="q" id="s1">
+    <div class="sec-head">
+      <div class="sec-index">01</div>
+      <div class="sec-titles"><p class="sec-kicker">Where you start</p><h2>How you sell today</h2></div>
+    </div>
+    <p class="sec-note">Two ways to run the engine, and most teams land between them. This tells me where you're starting so I build the right thing, and whose hand is on the send button.</p>
+
+    <div class="field">
+      <span class="qlabel"><span class="qnum">1.1</span>Are you starting outbound from zero, or supercharging a team that already sells?</span>
+      <div class="choices" role="radiogroup" aria-label="Starting point">
+        <label class="choice"><input type="radio" name="Starting point" value="Starting from zero"><span>Starting from zero</span></label>
+        <label class="choice"><input type="radio" name="Starting point" value="We have SDRs / AEs"><span>We have SDRs / AEs</span></label>
+        <label class="choice"><input type="radio" name="Starting point" value="Somewhere between"><span>Somewhere between</span></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="q_sender"><span class="qnum">1.2</span>Whose name goes on the outreach, and from which inbox?</label>
+      <textarea id="q_sender" name="1.2 Sender name and inbox" placeholder="The engine sends as a real person. Name, title, and the sending address."></textarea>
+    </div>
+
+    <div class="field">
+      <label for="q_stack"><span class="qnum">1.3</span>What CRM and tools do you already pay for?</label>
+      <textarea id="q_stack" name="1.3 CRM and tools in use" placeholder="HubSpot, Salesforce, ZoomInfo, a sequencer, a dialer… The engine runs on what you already own and keeps your CRM as the source of truth."></textarea>
+    </div>
+
+    <div class="field">
+      <label for="q_zone"><span class="qnum">1.4</span>Where are your targets, and what clock should the engine keep?</label>
+      <input type="text" id="q_zone" name="1.4 Targets and timezone" placeholder="e.g. West-coast base, selling into New York, so it clocks in early and follows the sun.">
+    </div>
+  </section>
+
+  <section class="q" id="s2">
+    <div class="sec-head">
+      <div class="sec-index">02</div>
+      <div class="sec-titles"><p class="sec-kicker">The offer</p><h2>What you sell, and why people buy</h2></div>
+    </div>
+    <p class="sec-note">In plain language, describe what it is that you sell, and why people choose to buy your product or service.</p>
+
+    <div class="field">
+      <label for="q_what"><span class="qnum">2.1</span>In one honest line, what do you sell?</label>
+      <input type="text" id="q_what" name="2.1 What you sell" placeholder="No tagline. What the thing actually is.">
+    </div>
+    <div class="field">
+      <label for="q_doors"><span class="qnum">2.2</span>What are the two or three distinct problems it solves, each a different way in the door?</label>
+      <textarea id="q_doors" name="2.2 Problems it solves" placeholder="The engine opens more than one door per account. Each problem is an angle for a different seat."></textarea>
+    </div>
+    <div class="field">
+      <label for="q_beat"><span class="qnum">2.3</span>Are you a category creator? Are you disrupting an incumbent market? Are you selling a better mousetrap? Who do you compete against, and why is your product or service differentiated?</label>
+      <textarea id="q_beat" name="2.3 Category creator / disruptor / differentiation" placeholder="Name the competitor and the real reason you win against them. Honest beats flattering."></textarea>
+    </div>
+    <div class="field">
+      <label for="q_deal"><span class="qnum">2.4</span>What does a first deal look like: the initial outcome, the timeline, the rough economics?</label>
+      <textarea id="q_deal" name="2.4 First deal shape" placeholder="The focused first win, roughly how long it takes to land, and the shape of the money."></textarea>
+    </div>
+  </section>
+
+  <section class="q" id="s3">
+    <div class="sec-head">
+      <div class="sec-index">03</div>
+      <div class="sec-titles"><p class="sec-kicker">The target</p><h2>Who it's for</h2></div>
+    </div>
+    <p class="sec-note">The fastest way to waste a warm domain is to point it at the wrong companies.</p>
+
+    <div class="field">
+      <label for="q_icp"><span class="qnum">3.1</span>Describe your ideal customer, or the customers you wish you had more of.</label>
+      <textarea id="q_icp" name="3.1 Ideal customer" placeholder="Size, shape, industry, the situation that makes them a fit. Real examples welcome."></textarea>
+    </div>
+    <div class="field">
+      <label for="q_floor"><span class="qnum">3.2</span>What are the lower and upper bounds for your target ICP? Revenue floor? Revenue ceiling?</label>
+      <input type="text" id="q_floor" name="3.2 ICP bounds (revenue floor and ceiling)" placeholder="e.g. a $50M revenue floor and a $2B ceiling. Employee-count bounds are welcome too.">
+    </div>
+    <div class="field">
+      <label for="q_seats"><span class="qnum">3.3</span>Who are the titles that own the problem you solve? Who holds the budget, and who is a dead end?</label>
+      <textarea id="q_seats" name="3.3 Titles that own the problem, budget, dead ends" placeholder="The economic buyer, and the operator who lives with the problem. And the titles that never move a deal."></textarea>
+    </div>
+    <div class="field">
+      <label for="q_verticals"><span class="qnum">3.4</span>Which industries or verticals should the engine work first?</label>
+      <input type="text" id="q_verticals" name="3.4 Priority verticals" placeholder="In priority order, if you have one.">
+    </div>
+  </section>
+
+  <section class="q" id="s4">
+    <div class="sec-head">
+      <div class="sec-index">04</div>
+      <div class="sec-titles"><p class="sec-kicker">The evidence</p><h2>How you win, and why you lose</h2></div>
+    </div>
+    <p class="sec-note">The sharpest hooks live in the deals you lost as much as the ones you won. <em>This is the area most teams under-invest in, and this is where the best intelligence lies.</em></p>
+
+    <div class="field">
+      <label for="q_win"><span class="qnum">4.1</span>When you win, why do you win? What's the pattern?</label>
+      <textarea id="q_win" name="4.1 Why you win" placeholder="The reason that keeps showing up in your best-fit closes."></textarea>
+    </div>
+    <div class="field">
+      <label for="q_lose"><span class="qnum">4.2</span>When you lose, why? What objection keeps coming back?</label>
+      <textarea id="q_lose" name="4.2 Why you lose" placeholder="The recurring reason deals stall or die. This shapes what the engine gets ahead of."></textarea>
+    </div>
+    <div class="field">
+      <label for="q_rate"><span class="qnum">4.3</span>Roughly what share of qualified deals do you close today?</label>
+      <input type="text" id="q_rate" name="4.3 Close rate today" placeholder="A number is fine. A range is fine. A best guess is fine.">
+    </div>
+    <div class="field">
+      <label for="q_proud"><span class="qnum">4.4</span>Tell me about one deal you're proud of: who it was, the problem, and what changed their mind.</label>
+      <textarea id="q_proud" name="4.4 A deal they are proud of" placeholder="The story you'd tell a peer. This is often where the best cold-email angle is hiding."></textarea>
+    </div>
+  </section>
+
+  <section class="q" id="s5">
+    <div class="sec-head">
+      <div class="sec-index">05</div>
+      <div class="sec-titles"><p class="sec-kicker">The voice</p><h2>How you sound, and what you can prove</h2></div>
+    </div>
+    <p class="sec-note">Executives reply to craft, not volume. <em>The closer I match your real voice, the more effective the engine becomes.</em> And the proof you already have, whether case studies, real numbers, or named clients, builds trust faster than any clever line.</p>
+
+    <div class="field">
+      <label for="q_hooks"><span class="qnum">5.1</span>Paste two or three subject lines or openers that have actually worked.</label>
+      <textarea id="q_hooks" name="5.1 Subject lines and openers that worked" placeholder="Real ones beat clever ones. Even rough notes from a rep's sent folder help."></textarea>
+    </div>
+    <div class="field">
+      <label for="q_voice"><span class="qnum">5.2</span>Do you have examples of your written voice? Are there things that you'd never say?</label>
+      <textarea id="q_voice" name="5.2 Voice and never-say" placeholder="Register, sentence length, words or claims that are off-brand for you."></textarea>
+    </div>
+    <div class="field">
+      <label for="q_public"><span class="qnum">5.3</span>What company proof points can you publicly reference? Articles from clients, numbers and percentages you can stand behind when challenged?</label>
+      <textarea id="q_public" name="5.3 Public proof" placeholder="Links welcome. Bylined and dated is better than anonymous. A link earns a click; a claim earns a squint."></textarea>
+    </div>
+    <div class="field">
+      <label for="q_refs"><span class="qnum">5.4</span>Which customers would take a reference call, or already have?</label>
+      <input type="text" id="q_refs" name="5.4 Reference customers" placeholder="Names, or just how many and what kind. Used for credibility, never named in cold outreach.">
+    </div>
+  </section>
+
+  <section class="q" id="s6">
+    <div class="sec-head">
+      <div class="sec-index">06</div>
+      <div class="sec-titles"><p class="sec-kicker">The fences</p><h2>The guardrails</h2></div>
+    </div>
+    <p class="sec-note">Governed means governed. <em>Tell me what's off-limits and I build the fences before the engine runs, not after.</em></p>
+
+    <div class="field">
+      <label for="q_exclude"><span class="qnum">6.1</span>Any accounts that are strictly off-limits?</label>
+      <textarea id="q_exclude" name="6.1 Off-limits accounts" placeholder="Competitors, partners, current customers, anyone you handle personally. The engine never touches these."></textarea>
+    </div>
+    <div class="field">
+      <label for="q_compliance"><span class="qnum">6.2</span>Any compliance rules that shape how you can reach people?</label>
+      <textarea id="q_compliance" name="6.2 Compliance rules" placeholder="DNC, consent, regulated claims, jurisdictions. Especially relevant if we add phone."></textarea>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label for="q_dnc"><span class="qnum">6.3</span>Where does your do-not-contact / suppression list live today?</label>
+        <input type="text" id="q_dnc" name="6.3 DNC list location" placeholder="A CRM field, a spreadsheet, a shrug. All fine to say.">
+      </div>
+      <div class="field">
+        <label for="q_domain"><span class="qnum">6.4</span>Which domain(s) will we send from, and how's their reputation?</label>
+        <input type="text" id="q_domain" name="6.4 Sending domains" placeholder="Warm and clean, or rebuilding? We audit it before send.">
+      </div>
+    </div>
+  </section>
+
+  <section class="q" id="s7">
+    <div class="sec-head">
+      <div class="sec-index">07</div>
+      <div class="sec-titles"><p class="sec-kicker">The aim</p><h2>What good looks like</h2></div>
+    </div>
+    <p class="sec-note">Real conversations are the goal: answered email from the seats you sell to, and meetings your team walks into prepared. Opens and clicks come first and show the message is landing, and <em>the sharper the problem you're naming, the faster that becomes a reply.</em></p>
+
+    <div class="field">
+      <label for="q_result"><span class="qnum">7.1</span>If the engine works, what changes for you?</label>
+      <textarea id="q_result" name="7.1 If it works, what changes" placeholder="The result you're hoping for: new pipeline, a market you can't crack today, reps freed to sell. Your words, not a forecast."></textarea>
+    </div>
+    <div class="field">
+      <label for="q_qualified"><span class="qnum">7.2</span>What should the engine count as a real conversation worth having?</label>
+      <textarea id="q_qualified" name="7.2 What counts as a real conversation" placeholder="The reply or meeting that would make a rep sit up: the seat, the signal, the kind of answer. This sets the quality bar we build toward."></textarea>
+    </div>
+    <div class="field">
+      <label for="q_else"><span class="qnum">7.3</span>Anything else I should know before I start building?</label>
+      <textarea id="q_else" name="7.3 Anything else to know" placeholder="Landmines, history, a failed vendor, an internal politics note. Nothing is too small."></textarea>
+    </div>
+  </section>
+
+  <section class="closing">
+    <div class="sec-head">
+      <div class="sec-index">→</div>
+      <div class="sec-titles"><p class="sec-kicker">After you send this back</p><h2>What happens next</h2></div>
+    </div>
+    <p class="measure" style="color:var(--ink-soft); margin:14px 0 4px;">Eight to twelve weeks, set in writing at the end of week one. Then you keep it.</p>
+
+    <div class="arc">
+      <div class="phase"><div class="wk">Weeks 1–2</div><h4>Install</h4><p>Immersion in what you sell and how you win. The engine lands on your stack, deliverability audited, targets researched and reviewed before anyone is touched.</p></div>
+      <div class="phase"><div class="wk">Weeks 3–8</div><h4>Operate</h4><p>Live sends ramp under grants you approve. Replies route to humans the minute they land. A weekly readout in plain numbers: delivered, opened, clicked, replied, booked.</p></div>
+      <div class="phase"><div class="wk">Weeks 9–12</div><h4>Hand off</h4><p>Your people run the engine while I watch. The playbook, the runbook, and every log land on your drive, and your CRM is cleaner than the day I arrived.</p></div>
+    </div>
+
+    <div class="donebar">Done means: <b>engine live</b> &nbsp;·&nbsp; <b>your operator trained</b> &nbsp;·&nbsp; <b>every document on your drive</b></div>
+
+    <div class="signoff">
+      <div>
+        <div class="sig-name">Dax Guljé</div>
+        <div class="sig-role">2× exits, one of them AI &nbsp;·&nbsp; Sales expert &nbsp;·&nbsp; AI GTM engineer</div>
+      </div>
+      <div class="savednote" id="savedNote" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="submit-panel" id="submitPanel">
+    <p class="sec-kicker" style="color:var(--ink-faint)">Send it in</p>
+    <h3>Ready to send this to Dax?</h3>
+    <p>Your answers go straight to Dax's inbox, nowhere else. If you'd rather keep a copy or send it another way, use Print / Save PDF at the top first.</p>
+    <button type="submit" class="btn-submit" id="submitBtn">Submit intake</button>
+    <p class="submit-status" id="submitStatus" aria-live="polite"></p>
+  </section>
+  <section class="submit-success" id="submitSuccess" hidden>
+    <h3>Got it.</h3>
+    <p>Your intake is on its way to Dax. He'll follow up shortly, and you can close this tab.</p>
+  </section>
+  <footer>Confidential · Prepared for the named company only · Dax.io</footer>
+</main>
+</form>
+
+<script>
+(function(){
+  "use strict";
+  var KEY = "om_intake_v1";
+  var store = {};
+  function safeGet(){ try{ return JSON.parse(localStorage.getItem(KEY) || "{}"); }catch(e){ return {}; } }
+  function safeSet(){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){} }
+
+  var fields = Array.prototype.slice.call(document.querySelectorAll('input[type=text], textarea'));
+  var radios = Array.prototype.slice.call(document.querySelectorAll('input[type=radio]'));
+
+  // ----- restore -----
+  store = safeGet();
+  fields.forEach(function(el){
+    if(store[el.id] != null){ el.value = store[el.id]; }
+  });
+  radios.forEach(function(el){
+    if(store["mode"] === el.value){ el.checked = true; }
+  });
+
+  // ----- autosize textareas -----
+  function autosize(el){
+    if(el.tagName !== "TEXTAREA") return;
+    el.style.height = "auto";
+    el.style.height = Math.max(52, el.scrollHeight + 2) + "px";
+  }
+  fields.forEach(autosize);
+
+  // ----- progress -----
+  var bar = document.getElementById("bar");
+  var pct = document.getElementById("pct");
+  var totalGroups = fields.length + 1; // +1 for the radio group
+  function updateProgress(){
+    var filled = 0;
+    fields.forEach(function(el){ if(el.value.trim() !== "") filled++; });
+    if(radios.some(function(r){ return r.checked; })) filled++;
+    var p = Math.round((filled / totalGroups) * 100);
+    bar.style.width = p + "%";
+    pct.textContent = p + "% complete";
+  }
+
+  // ----- saved indicator -----
+  var savedNote = document.getElementById("savedNote");
+  var savedTimer = null;
+  function flagSaved(){
+    if(!savedNote) return;
+    savedNote.textContent = "✓ Saved to this browser";
+    if(savedTimer) clearTimeout(savedTimer);
+    savedTimer = setTimeout(function(){ savedNote.textContent = ""; }, 1600);
+  }
+
+  // ----- wire up -----
+  function onInput(el){
+    store[el.id] = el.value;
+    safeSet(); autosize(el); updateProgress(); flagSaved();
+  }
+  fields.forEach(function(el){
+    el.addEventListener("input", function(){ onInput(el); });
+  });
+  radios.forEach(function(el){
+    el.addEventListener("change", function(){
+      store["mode"] = el.value; safeSet(); updateProgress(); flagSaved();
+    });
+  });
+
+  updateProgress();
+
+  // ----- print -----
+  var pb = document.getElementById("printBtn");
+  if(pb){ pb.addEventListener("click", function(){ window.print(); }); }
+})();
+</script>
+
+<script>
+(function(){ "use strict";
+  var form=document.getElementById("intakeForm"); if(!form) return;
+  var btn=document.getElementById("submitBtn"),status=document.getElementById("submitStatus"),
+      panel=document.getElementById("submitPanel"),success=document.getElementById("submitSuccess"),KEY="om_intake_v1";
+  form.addEventListener("submit",function(e){ e.preventDefault(); if(btn.disabled) return; btn.disabled=true; status.textContent="Sending\u2026";
+    fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Accept":"application/json"},body:new FormData(form)})
+    .then(function(r){return r.json();}).then(function(j){
+      if(j&&j.success){ try{localStorage.removeItem(KEY);}catch(err){} if(panel)panel.hidden=true; if(success){success.hidden=false;success.scrollIntoView({behavior:"smooth",block:"center"});} }
+      else { throw new Error((j&&j.message)||"fail"); }
+    }).catch(function(){ status.textContent="That didn't go through. Check your connection and try again, or use Print / Save PDF up top to send it manually."; btn.disabled=false; });
+  });
+})();
+</script>
+</body>
+</html>
