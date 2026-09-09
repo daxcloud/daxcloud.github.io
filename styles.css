@@ -4,7 +4,7 @@
    ========================================================================== */
 
 :root {
-  /* Palette — The Outbound Machine: petrol ground, brass accent */
+  /* Palette — GTM Engine: petrol ground, brass accent */
   --bg:            #0C1416;
   --bg-2:          #101A1D;
   --surface:       #132025;
@@ -430,7 +430,7 @@ section { padding: clamp(72px, 11vw, 140px) 0; position: relative; }
   .hero-cta .btn { flex: 1 1 auto; justify-content: center; }
 }
 
-/* ---------- The practice (Outbound Machine) ---------- */
+/* ---------- The practice (GTM Engine) ---------- */
 .pr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 48px; }
 .pr-card {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
