@@ -119,6 +119,18 @@
   .btn-ghost:hover{ color:var(--accent); border-color:var(--accent) }
   .btn-ghost .ar{ font-size:13px; line-height:1 }
 
+
+  /* GTM Engine video (cover) */
+  .vid{ position:relative; margin:30px 0 4px; border:1px solid var(--line-strong); border-radius:3px; overflow:hidden; background:#0C1416; box-shadow:var(--shadow); aspect-ratio:16/9 }
+  .vid video{ display:block; width:100%; height:100%; object-fit:cover }
+  .vid-play{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; gap:16px; background:transparent; border:0; cursor:pointer; color:var(--ink); font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.16em; text-transform:uppercase; padding:0 }
+  .vid-play .ring{ width:72px; height:72px; border-radius:50%; border:1.5px solid var(--accent); display:grid; place-items:center; background:color-mix(in srgb, var(--bg) 70%, transparent); transition:transform .15s, background .15s }
+  .vid-play .ring svg{ width:26px; height:26px; margin-left:4px }
+  .vid-play:hover .ring{ transform:scale(1.06); background:var(--accent) }
+  .vid-play:hover .ring svg{ stroke:var(--bg); fill:var(--bg) }
+  .vid-play .lbl{ position:absolute; left:18px; bottom:16px; color:var(--ink-soft) }
+  .vid.playing .vid-play{ display:none }
+  @media print{ .vid{ display:none } }
   /* one-pager download card (cover) */
   .onepager-card{
     display:flex; align-items:center; gap:16px; text-decoration:none;
@@ -303,7 +315,7 @@
 </head>
 <body>
 <div class="topbar">
-  <span class="brandmark">The&nbsp;Outbound&nbsp;Machine <span class="sep">▸</span> <b>Client&nbsp;Intake</b></span>
+  <span class="brandmark">GTM&nbsp;Engine <span class="sep">▸</span> <b>Client&nbsp;Intake</b></span>
   <span class="spacer"></span>
   <span class="progress-wrap">
     <span class="progress-label" id="pct">0% complete</span>
@@ -324,6 +336,16 @@
       <h1>Client Intake</h1>
       <p class="thesis">I build your outbound engine, and stay only as long as you want me to.</p>
       <p class="lede">This is where your engine gets its intelligence. <b>The better I understand how you actually win, the faster it sounds like you and not like software.</b> Most of this you can answer from memory. The gaps are fine, and finding them is part of week one.</p>
+
+      <div class="vid" id="vidWrap">
+        <video id="gtmVideo" poster="/gtm/gtm-engine-poster.jpg" preload="metadata" playsinline>
+          <source src="/gtm/gtm-engine.mp4" type="video/mp4">
+        </video>
+        <button class="vid-play" id="vidPlay" type="button" aria-label="Play: the GTM Engine in two and a half minutes">
+          <span class="ring"><svg viewBox="0 0 24 24" fill="#CB9B4E" stroke="#CB9B4E" stroke-width="1.5" stroke-linejoin="round"><path d="M7 4.5v15l12-7.5z"/></svg></span>
+          <span class="lbl">The GTM Engine in 2:25 · sound on</span>
+        </button>
+      </div>
 
       <a class="onepager-card" href="/outbound-one-pager.pdf" target="_blank" rel="noopener" download>
         <span class="opc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M5 20h14"/></svg></span>
@@ -660,6 +682,11 @@
     }).catch(function(){ status.textContent="That didn't go through. Check your connection and try again, or use Print / Save PDF up top to send it manually."; btn.disabled=false; });
   });
 })();
+</script>
+<script>
+(function(){var w=document.getElementById('vidWrap'),v=document.getElementById('gtmVideo'),b=document.getElementById('vidPlay');if(!w||!v||!b)return;
+b.addEventListener('click',function(){w.classList.add('playing');v.controls=true;v.muted=false;v.play();});
+v.addEventListener('ended',function(){w.classList.remove('playing');v.controls=false;});})();
 </script>
 </body>
 </html>
